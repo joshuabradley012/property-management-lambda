@@ -12,15 +12,15 @@ exports.handler = async (event) => {
   const database = new Database(config);
 
   await database.query('DROP TABLE IF EXISTS people');
-  await database.query(
-    'CREATE TABLE people(' +
-      'id int NOT NULL AUTO_INCREMENT, ' +
-      'name varchar(255), ' +
-      'email varchar(255), ' +
-      'phone varchar(255), ' +
-      'PRIMARY KEY(id)' +
-    ');'
-  );
+  await database.query(`
+    CREATE TABLE people(
+      id int NOT NULL AUTO_INCREMENT,
+      name varchar(255),
+      email varchar(255),
+      phone varchar(255),
+      PRIMARY KEY(id)
+    );
+  `);
   for (const person of data.people) {
     await database.query('INSERT INTO people VALUES(?, ?, ?, ?)', [
       person.id,
@@ -31,16 +31,16 @@ exports.handler = async (event) => {
   }
 
   await database.query('DROP TABLE IF EXISTS owners');
-  await database.query(
-    'CREATE TABLE owners(' +
-      'id int NOT NULL AUTO_INCREMENT, ' +
-      'personId int, ' +
-      'PRIMARY KEY(id), ' +
-      'FOREIGN KEY (personId) ' +
-        'REFERENCES people(id) ' +
-        'ON DELETE CASCADE' +
-    ');'
-  );
+  await database.query(`
+    CREATE TABLE owners(
+      id int NOT NULL AUTO_INCREMENT,
+      personId int,
+      PRIMARY KEY(id),
+      FOREIGN KEY (personId)
+        REFERENCES people(id)
+        ON DELETE CASCADE
+    );
+  `);
   for (const owner of data.owners) {
     await database.query('INSERT INTO owners VALUES(?, ?)', [
       owner.id,
@@ -49,17 +49,17 @@ exports.handler = async (event) => {
   }
 
   await database.query('DROP TABLE IF EXISTS properties');
-  await database.query(
-    'CREATE TABLE properties(' +
-      'id int NOT NULL AUTO_INCREMENT, ' +
-      'ownerId int NOT NULL, ' +
-      'name varchar(255), ' +
-      'PRIMARY KEY(id), ' +
-      'FOREIGN KEY (ownerId) ' +
-        'REFERENCES owners(id) ' +
-        'ON DELETE CASCADE' +
-    ');'
-  );
+  await database.query(`
+    CREATE TABLE properties(
+      id int NOT NULL AUTO_INCREMENT,
+      ownerId int NOT NULL,
+      name varchar(255),
+      PRIMARY KEY(id),
+      FOREIGN KEY (ownerId)
+        REFERENCES owners(id)
+        ON DELETE CASCADE
+    );
+  `);
   for (const property of data.properties) {
     await database.query('INSERT INTO properties VALUES(?, ?, ?)', [
       property.id,
@@ -69,19 +69,19 @@ exports.handler = async (event) => {
   }
 
   await database.query('DROP TABLE IF EXISTS buildings');
-  await database.query(
-    'CREATE TABLE buildings(' +
-      'id int NOT NULL AUTO_INCREMENT, ' +
-      'propertyId int NOT NULL, ' +
-      'line1 varchar(255), ' +
-      'city varchar(255), ' +
-      'state varchar(255), ' +
-      'PRIMARY KEY(id), ' +
-      'FOREIGN KEY (propertyId) ' +
-        'REFERENCES properties(id) ' +
-        'ON DELETE CASCADE' +
-    ');'
-  );
+  await database.query(`
+    CREATE TABLE buildings(
+      id int NOT NULL AUTO_INCREMENT,
+      propertyId int NOT NULL,
+      line1 varchar(255),
+      city varchar(255),
+      state varchar(255),
+      PRIMARY KEY(id),
+      FOREIGN KEY (propertyId)
+        REFERENCES properties(id)
+        ON DELETE CASCADE
+    );
+  `);
   for (const building of data.buildings) {
     await database.query('INSERT INTO buildings VALUES(?, ?, ?, ?, ?)', [
       building.id,
@@ -93,17 +93,17 @@ exports.handler = async (event) => {
   }
 
   await database.query('DROP TABLE IF EXISTS units');
-  await database.query(
-    'CREATE TABLE units(' +
-      'id int NOT NULL AUTO_INCREMENT, ' +
-      'buildingId int NOT NULL, ' +
-      'name varchar(255), ' +
-      'PRIMARY KEY(id), ' +
-      'FOREIGN KEY (buildingId) ' +
-        'REFERENCES buildings(id) ' +
-        'ON DELETE CASCADE' +
-    ');'
-  );
+  await database.query(`
+    CREATE TABLE units(
+      id int NOT NULL AUTO_INCREMENT,
+      buildingId int NOT NULL,
+      name varchar(255),
+      PRIMARY KEY(id),
+      FOREIGN KEY (buildingId)
+        REFERENCES buildings(id)
+        ON DELETE CASCADE
+    );
+  `);
   for (const unit of data.units) {
     await database.query('INSERT INTO units VALUES(?, ?, ?)', [
       unit.id,
@@ -113,22 +113,22 @@ exports.handler = async (event) => {
   }
 
   await database.query('DROP TABLE IF EXISTS tenants');
-  await database.query(
-    'CREATE TABLE tenants(' +
-      'id int NOT NULL AUTO_INCREMENT, ' +
-      'personId int NOT NULL, ' +
-      'unitId int NOT NULL, ' +
-      'leaseEnd DATETIME, ' +
-      'currentRent int, ' +
-      'PRIMARY KEY(id), ' +
-      'FOREIGN KEY (personId) ' +
-        'REFERENCES people(id) ' +
-        'ON DELETE CASCADE,' +
-      'FOREIGN KEY (unitId) ' +
-        'REFERENCES units(id) ' +
-        'ON DELETE CASCADE' +
-    ');'
-  );
+  await database.query(`
+    CREATE TABLE tenants(
+      id int NOT NULL AUTO_INCREMENT,
+      personId int NOT NULL,
+      unitId int NOT NULL,
+      leaseEnd DATETIME,
+      currentRent int,
+      PRIMARY KEY(id),
+      FOREIGN KEY (personId)
+        REFERENCES people(id)
+        ON DELETE CASCADE,
+      FOREIGN KEY (unitId)
+        REFERENCES units(id)
+        ON DELETE CASCADE
+    );
+  `);
   for (const tenant of data.tenants) {
     await database.query('INSERT INTO tenants VALUES(?, ?, ?, ?, ?)', [
       tenant.id,
@@ -140,21 +140,21 @@ exports.handler = async (event) => {
   }
 
   await database.query('DROP TABLE IF EXISTS records');
-  await database.query(
-    'CREATE TABLE records(' +
-      'id int NOT NULL AUTO_INCREMENT, ' +
-      'personId int NOT NULL, ' +
-      'date DATETIME, ' +
-      'amount int, ' +
-      'category varchar(255), ' +
-      'type varchar(255), ' +
-      'transactor varchar(255), ' +
-      'PRIMARY KEY(id), ' +
-      'FOREIGN KEY (personId) ' +
-        'REFERENCES people(id) ' +
-        'ON DELETE CASCADE' +
-    ');'
-  );
+  await database.query(`
+    CREATE TABLE records(
+      id int NOT NULL AUTO_INCREMENT,
+      personId int NOT NULL,
+      date DATETIME,
+      amount int,
+      category varchar(255),
+      type varchar(255),
+      transactor varchar(255),
+      PRIMARY KEY(id),
+      FOREIGN KEY (personId)
+        REFERENCES people(id)
+        ON DELETE CASCADE
+    );
+  `);
   for (const record of data.records) {
     await database.query('INSERT INTO records VALUES(?, ?, ?, ?, ?, ?, ?)', [
       record.id,
@@ -168,26 +168,26 @@ exports.handler = async (event) => {
   }
 
   await database.query('DROP TABLE IF EXISTS entries');
-  await database.query(
-    'CREATE TABLE entries(' +
-      'id int NOT NULL AUTO_INCREMENT, ' +
-      'personId int NOT NULL, ' +
-      'recordId int, ' +
-      'date DATETIME, ' +
-      'amount int, ' +
-      'category varchar(255), ' +
-      'type varchar(255), ' +
-      'source varchar(255), ' +
-      'transactor varchar(255), ' +
-      'PRIMARY KEY(id), ' +
-      'FOREIGN KEY (personId) ' +
-        'REFERENCES people(id) ' +
-        'ON DELETE CASCADE,' +
-      'FOREIGN KEY (recordId) ' +
-        'REFERENCES records(id) ' +
-        'ON DELETE CASCADE' +
-    ');'
-  );
+  await database.query(`
+    CREATE TABLE entries(
+      id int NOT NULL AUTO_INCREMENT,
+      personId int NOT NULL,
+      recordId int,
+      date DATETIME,
+      amount int,
+      category varchar(255),
+      type varchar(255),
+      source varchar(255),
+      transactor varchar(255),
+      PRIMARY KEY(id),
+      FOREIGN KEY (personId)
+        REFERENCES people(id)
+        ON DELETE CASCADE,
+      FOREIGN KEY (recordId)
+        REFERENCES records(id)
+        ON DELETE CASCADE
+    );
+  `);
   for (const entry of data.entries) {
     await database.query('INSERT INTO entries VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)', [
       entry.id,
